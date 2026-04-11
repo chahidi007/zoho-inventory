@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />`n  <link rel="manifest" href="/manifest.json">
   <title>Zoho Inventory AI</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,8 +38,8 @@
 </head>
 <body>
 <div class="header">
-  <h1>📦 Zoho Inventory AI</h1>
-  <p>Stock accuracy — Zoho Books + Claude AI</p>
+  <h1>ðŸ“¦ Zoho Inventory AI</h1>
+  <p>Stock accuracy â€” Zoho Books + Claude AI</p>
 </div>
 <div class="container">
   <div id="banner"></div>
@@ -49,65 +49,65 @@
     <div class="card">
       <h2 style="font-size:18px;font-weight:900;margin-bottom:8px;">Connect your Zoho Books</h2>
       <p style="color:#a78bfa;font-size:14px;line-height:1.6;margin-bottom:4px;">Tap below to log in securely with Zoho. No passwords stored.</p>
-      <div class="info-box">🔒 Your token is never stored on any server. It lives only in your browser session.</div>
-      <a id="zoho-login-btn" class="btn-zoho" href="#">🔴 Connect with Zoho Books</a>
+      <div class="info-box">ðŸ”’ Your token is never stored on any server. It lives only in your browser session.</div>
+      <a id="zoho-login-btn" class="btn-zoho" href="#">ðŸ”´ Connect with Zoho Books</a>
     </div>
   </div>
 
   <!-- APP -->
   <div id="app-section">
     <div class="step-bar">
-      <div class="step done"   id="s1">⚡ Connected</div>
-      <div class="step active" id="s2">🔍 Audit</div>
-      <div class="step"        id="s3">🧠 AI</div>
-      <div class="step"        id="s4">✏️ Fix</div>
-      <div class="step"        id="s5">🔄 Done</div>
+      <div class="step done"   id="s1">âš¡ Connected</div>
+      <div class="step active" id="s2">ðŸ” Audit</div>
+      <div class="step"        id="s3">ðŸ§  AI</div>
+      <div class="step"        id="s4">âœï¸ Fix</div>
+      <div class="step"        id="s5">ðŸ”„ Done</div>
     </div>
 
     <!-- Org ID -->
     <div class="card">
       <label class="label">Zoho Books Organization ID</label>
       <input class="input" id="org-input" placeholder="e.g. 20081234567" type="text" />
-      <p style="color:#6d28d9;font-size:12px;margin-top:6px;">Zoho Books → Settings ⚙️ → Organization Profile → Organization ID</p>
-      <button class="btn-primary" onclick="fetchItems()">📥 Fetch My Inventory from Zoho</button>
+      <p style="color:#6d28d9;font-size:12px;margin-top:6px;">Zoho Books â†’ Settings âš™ï¸ â†’ Organization Profile â†’ Organization ID</p>
+      <button class="btn-primary" onclick="fetchItems()">ðŸ“¥ Fetch My Inventory from Zoho</button>
     </div>
 
     <!-- Items table -->
     <div class="card" id="items-card" style="display:none">
-      <h3 style="font-weight:800;margin-bottom:4px;">📋 Inventory Audit</h3>
+      <h3 style="font-weight:800;margin-bottom:4px;">ðŸ“‹ Inventory Audit</h3>
       <p style="color:#a78bfa;font-size:13px;margin-bottom:16px;">Edit the Physical column with your actual counts.</p>
-      <div id="items-loading" class="loading">⏳ Fetching from Zoho Books…</div>
+      <div id="items-loading" class="loading">â³ Fetching from Zoho Booksâ€¦</div>
       <div id="items-table-wrap" style="display:none">
         <table>
           <thead><tr><th>Item</th><th>Zoho</th><th>Physical</th><th>Gap</th></tr></thead>
           <tbody id="items-body"></tbody>
         </table>
         <div class="info-box" style="margin-top:16px">
-          🔍 <strong>Deep Analysis:</strong> Claude will fetch your recent sales, purchases and past adjustments from Zoho to cross-reference each gap — giving you real, specific root causes based on your actual transaction data.
+          ðŸ” <strong>Deep Analysis:</strong> Claude will fetch your recent sales, purchases and past adjustments from Zoho to cross-reference each gap â€” giving you real, specific root causes based on your actual transaction data.
         </div>
-        <button class="btn-primary" style="margin-top:12px" onclick="runAI()">🧠 Run Deep AI Analysis</button>
+        <button class="btn-primary" style="margin-top:12px" onclick="runAI()">ðŸ§  Run Deep AI Analysis</button>
       </div>
     </div>
 
     <!-- AI progress -->
     <div class="card" id="ai-progress-card" style="display:none">
-      <h3 style="font-weight:800;margin-bottom:12px;">🔍 Fetching Transaction History…</h3>
+      <h3 style="font-weight:800;margin-bottom:12px;">ðŸ” Fetching Transaction Historyâ€¦</h3>
       <div id="ai-progress-log" style="font-size:13px;color:#a78bfa;line-height:2;"></div>
     </div>
 
     <!-- AI result -->
     <div class="card" id="ai-card" style="display:none">
-      <h3 style="font-weight:800;margin-bottom:4px;">🧠 Deep AI Root-Cause Analysis</h3>
+      <h3 style="font-weight:800;margin-bottom:4px;">ðŸ§  Deep AI Root-Cause Analysis</h3>
       <p style="color:#6d28d9;font-size:12px;margin-bottom:12px;">Based on your actual Zoho transaction history</p>
       <div id="ai-result" class="ai-text"></div>
-      <button class="btn-primary" id="fix-btn" style="margin-top:16px;display:none" onclick="applyFixes()">✏️ Apply All Corrections to Zoho Books</button>
+      <button class="btn-primary" id="fix-btn" style="margin-top:16px;display:none" onclick="applyFixes()">âœï¸ Apply All Corrections to Zoho Books</button>
     </div>
 
     <!-- Fix result -->
     <div class="card" id="fix-card" style="display:none">
-      <h3 style="font-weight:800;margin-bottom:12px;">✅ Corrections Applied</h3>
+      <h3 style="font-weight:800;margin-bottom:12px;">âœ… Corrections Applied</h3>
       <div id="fix-result" class="fix-text"></div>
-      <div class="info-box" style="margin-top:16px">🔄 <strong>Next:</strong> Enable low-stock alerts in Zoho Books → Settings → Notifications.</div>
+      <div class="info-box" style="margin-top:16px">ðŸ”„ <strong>Next:</strong> Enable low-stock alerts in Zoho Books â†’ Settings â†’ Notifications.</div>
     </div>
   </div>
 </div>
@@ -123,13 +123,13 @@
     const err = params.get('error');
 
     if (err) {
-      showBanner('error', '❌ Login failed: ' + err + '. Please try again.');
+      showBanner('error', 'âŒ Login failed: ' + err + '. Please try again.');
       showSection('login');
     } else if (token) {
       accessToken = token;
       window.history.replaceState({}, document.title, '/');
       showSection('app');
-      showBanner('success', '✅ Connected to Zoho Books!');
+      showBanner('success', 'âœ… Connected to Zoho Books!');
     } else {
       showSection('login');
     }
@@ -163,13 +163,13 @@
 
   function logProgress(msg) {
     const el = document.getElementById('ai-progress-log');
-    el.innerHTML += `<div>→ ${msg}</div>`;
+    el.innerHTML += `<div>â†’ ${msg}</div>`;
   }
 
-  // ── FETCH ITEMS ────────────────────────────────────
+  // â”€â”€ FETCH ITEMS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function fetchItems() {
     orgId = document.getElementById('org-input').value.trim();
-    if (!orgId) { showBanner('error', '⚠️ Please enter your Organization ID first.'); return; }
+    if (!orgId) { showBanner('error', 'âš ï¸ Please enter your Organization ID first.'); return; }
     document.getElementById('items-card').style.display = 'block';
     document.getElementById('items-loading').style.display = 'block';
     document.getElementById('items-table-wrap').style.display = 'none';
@@ -185,13 +185,13 @@
         unit: item.unit || 'units',
       }));
       if (itemsData.length === 0) {
-        showBanner('error', '⚠️ No items found. Enable inventory tracking in Zoho Books.');
+        showBanner('error', 'âš ï¸ No items found. Enable inventory tracking in Zoho Books.');
         document.getElementById('items-loading').style.display = 'none';
         return;
       }
       renderTable();
     } catch (e) {
-      showBanner('error', '❌ Could not fetch items: ' + e.message);
+      showBanner('error', 'âŒ Could not fetch items: ' + e.message);
       document.getElementById('items-loading').style.display = 'none';
     }
   }
@@ -216,12 +216,12 @@
     el.style.color = gap === 0 ? '#4ade80' : gap > 0 ? '#60a5fa' : '#f87171';
   }
 
-  // ── DEEP AI ANALYSIS ────────────────────────────────
+  // â”€â”€ DEEP AI ANALYSIS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function runAI() {
     const gaps = itemsData.filter(i => i.physical !== i.zoho);
     if (gaps.length === 0) {
       document.getElementById('ai-card').style.display = 'block';
-      document.getElementById('ai-result').textContent = '✅ No discrepancies! Stock is perfectly accurate.';
+      document.getElementById('ai-result').textContent = 'âœ… No discrepancies! Stock is perfectly accurate.';
       setStep(3);
       return;
     }
@@ -232,7 +232,7 @@
     document.getElementById('ai-card').style.display = 'none';
     document.getElementById('fix-btn').style.display = 'none';
 
-    logProgress(`Found ${gaps.length} discrepant item(s). Fetching transaction history from Zoho…`);
+    logProgress(`Found ${gaps.length} discrepant item(s). Fetching transaction history from Zohoâ€¦`);
 
     // Fetch transaction history for each discrepant item in parallel
     const txData = {};
@@ -248,7 +248,7 @@
       }
     }));
 
-    logProgress('Transaction history loaded. Sending to Claude for deep analysis…');
+    logProgress('Transaction history loaded. Sending to Claude for deep analysisâ€¦');
 
     // Build rich prompt with real transaction data
     const itemSections = gaps.map(item => {
@@ -287,12 +287,12 @@ Analyze these stock discrepancies from Zoho Books, using the actual transaction 
 ${itemSections}
 
 For EACH item, based on the actual transaction data above:
-1. 🔍 SPECIFIC ROOT CAUSE — What exactly caused this gap? Reference specific transactions if visible (e.g. "Invoice #123 was created but stock not deducted", "PO received but not marked as delivered")
-2. ✅ IMMEDIATE ACTION — Exactly what to do right now in Zoho Books
-3. 🔄 PROCESS FIX — Specific workflow change to prevent this exact issue
+1. ðŸ” SPECIFIC ROOT CAUSE â€” What exactly caused this gap? Reference specific transactions if visible (e.g. "Invoice #123 was created but stock not deducted", "PO received but not marked as delivered")
+2. âœ… IMMEDIATE ACTION â€” Exactly what to do right now in Zoho Books
+3. ðŸ”„ PROCESS FIX â€” Specific workflow change to prevent this exact issue
 
 Then give:
-📋 TOP 3 SYSTEMIC IMPROVEMENTS for this business based on the patterns you see across all items.
+ðŸ“‹ TOP 3 SYSTEMIC IMPROVEMENTS for this business based on the patterns you see across all items.
 
 Be specific, practical, and reference the actual data. If transaction data is sparse, say so and give pattern-based reasoning.`;
 
@@ -314,16 +314,16 @@ Be specific, practical, and reference the actual data. If transaction data is sp
       document.getElementById('ai-result').textContent = data.content[0].text;
       document.getElementById('fix-btn').style.display = 'block';
     } catch (e) {
-      logProgress('❌ AI analysis failed: ' + e.message);
+      logProgress('âŒ AI analysis failed: ' + e.message);
     }
   }
 
-  // ── APPLY FIXES ────────────────────────────────────
+  // â”€â”€ APPLY FIXES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function applyFixes() {
     const gaps = itemsData.filter(i => i.physical !== i.zoho);
     if (gaps.length === 0) return;
     document.getElementById('fix-card').style.display = 'block';
-    document.getElementById('fix-result').textContent = '⏳ Posting to Zoho Books…';
+    document.getElementById('fix-result').textContent = 'â³ Posting to Zoho Booksâ€¦';
     document.getElementById('fix-btn').disabled = true;
     setStep(4);
     const today = new Date().toISOString().split('T')[0];
@@ -341,16 +341,17 @@ Be specific, practical, and reference the actual data. If transaction data is sp
         });
         const data = await res.json();
         results.push(data.code === 0
-          ? `✅ ${item.name}: adjusted ${item.physical - item.zoho > 0 ? '+' : ''}${item.physical - item.zoho} ${item.unit}`
-          : `⚠️ ${item.name}: ${data.message}`);
+          ? `âœ… ${item.name}: adjusted ${item.physical - item.zoho > 0 ? '+' : ''}${item.physical - item.zoho} ${item.unit}`
+          : `âš ï¸ ${item.name}: ${data.message}`);
       } catch (e) {
-        results.push(`❌ ${item.name}: ${e.message}`);
+        results.push(`âŒ ${item.name}: ${e.message}`);
       }
     }
     document.getElementById('fix-result').textContent = results.join('\n');
     setStep(5);
-    showBanner('success', '✅ All corrections sent to Zoho Books!');
+    showBanner('success', 'âœ… All corrections sent to Zoho Books!');
   }
 </script>
 </body>
 </html>
+
