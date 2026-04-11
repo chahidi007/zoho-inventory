@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoho Inventory AI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0a1e; color: #f1f0ff; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #6d28d9, #4f46e5); padding: 24px 20px; text-align: center; }
+    .header h1 { font-size: 22px; font-weight: 900; }
+    .header p { color: #c4b5fd; font-size: 14px; margin-top: 4px; }
+    .container { max-width: 680px; margin: 0 auto; padding: 24px 16px; }
+    .card { background: #1e1535; border: 1px solid #3b2f6e; border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+    .btn-zoho { display: flex; align-items: center; justify-content: center; gap: 10px; background: #e8562a; color: white; border: none; border-radius: 12px; padding: 14px 28px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 16px; text-decoration: none; }
+    .btn-zoho:hover { background: #c94420; }
+    .btn-primary { background: #7c3aed; color: white; border: none; border-radius: 10px; padding: 12px 20px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 12px; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .label { font-size: 13px; color: #a78bfa; font-weight: 700; margin-bottom: 6px; display: block; }
+    .input { width: 100%; padding: 10px 14px; background: #0f0a1e; border: 1.5px solid #3b2f6e; border-radius: 8px; color: white; font-size: 15px; }
+    .alert-success { background: #052e16; border: 1px solid #16a34a; border-radius: 10px; padding: 12px 16px; color: #4ade80; font-size: 14px; margin-bottom: 16px; }
+    .alert-error { background: #2d0a0a; border: 1px solid #dc2626; border-radius: 10px; padding: 12px 16px; color: #f87171; font-size: 14px; margin-bottom: 16px; }
+    .step-bar { display: flex; margin-bottom: 24px; }
+    .step { flex: 1; text-align: center; padding: 10px 4px; font-size: 11px; color: #6d28d9; border-bottom: 2px solid #3b2f6e; }
+    .step.active { color: white; border-bottom: 2px solid #7c3aed; font-weight: 800; }
+    .step.done { color: #4ade80; border-bottom: 2px solid #16a34a; }
+    #login-section, #app-section { display: none; }
+    .loading { text-align: center; color: #a78bfa; padding: 20px; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px; color: #6d28d9; font-size: 11px; text-transform: uppercase; }
+    td { padding: 10px 8px; border-bottom: 1px solid #2d2050; vertical-align: middle; }
+    input[type=number] { width: 70px; background: #0f0a1e; border: 1px solid #3b2f6e; border-radius: 6px; color: white; padding: 4px 8px; font-size: 13px; }
+    .ai-text { color: #c4b5fd; line-height: 1.8; font-size: 14px; white-space: pre-wrap; }
+    .fix-text { color: #4ade80; font-size: 14px; line-height: 2; white-space: pre-wrap; }
+    .info-box { background: #12082a; border: 1px solid #4c1d95; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #a78bfa; margin-top: 10px; }
+    .progress-item { font-size: 12px; color: #a78bfa; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>📦 Zoho Inventory AI</h1>
+  <p>Stock accuracy — Zoho Books + Claude AI</p>
+</div>
+<div class="container">
+  <div id="banner"></div>
+
+  <!-- LOGIN -->
+  <div id="login-section">
+    <div class="card">
+      <h2 style="font-size:18px;font-weight:900;margin-bottom:8px;">Connect your Zoho Books</h2>
+      <p style="color:#a78bfa;font-size:14px;line-height:1.6;margin-bottom:4px;">Tap below to log in securely with Zoho. No passwords stored.</p>
+      <div class="info-box">🔒 Your token is never stored on any server. It lives only in your browser session.</div>
+      <a id="zoho-login-btn" class="btn-zoho" href="#">🔴 Connect with Zoho Books</a>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app-section">
+    <div class="step-bar">
+      <div class="step done"   id="s1">⚡ Connected</div>
+      <div class="step active" id="s2">🔍 Audit</div>
+      <div class="step"        id="s3">🧠 AI</div>
+      <div class="step"        id="s4">✏️ Fix</div>
+      <div class="step"        id="s5">🔄 Done</div>
+    </div>
+
+    <!-- Org ID -->
+    <div class="card">
+      <label class="label">Zoho Books Organization ID</label>
+      <input class="input" id="org-input" placeholder="e.g. 20081234567" type="text" />
+      <p style="color:#6d28d9;font-size:12px;margin-top:6px;">Zoho Books → Settings ⚙️ → Organization Profile → Organization ID</p>
+      <button class="btn-primary" onclick="fetchItems()">📥 Fetch My Inventory from Zoho</button>
+    </div>
+
+    <!-- Items table -->
+    <div class="card" id="items-card" style="display:none">
+      <h3 style="font-weight:800;margin-bottom:4px;">📋 Inventory Audit</h3>
+      <p style="color:#a78bfa;font-size:13px;margin-bottom:16px;">Edit the Physical column with your actual counts.</p>
+      <div id="items-loading" class="loading">⏳ Fetching from Zoho Books…</div>
+      <div id="items-table-wrap" style="display:none">
+        <table>
+          <thead><tr><th>Item</th><th>Zoho</th><th>Physical</th><th>Gap</th></tr></thead>
+          <tbody id="items-body"></tbody>
+        </table>
+        <div class="info-box" style="margin-top:16px">
+          🔍 <strong>Deep Analysis:</strong> Claude will fetch your recent sales, purchases and past adjustments from Zoho to cross-reference each gap — giving you real, specific root causes based on your actual transaction data.
+        </div>
+        <button class="btn-primary" style="margin-top:12px" onclick="runAI()">🧠 Run Deep AI Analysis</button>
+      </div>
+    </div>
+
+    <!-- AI progress -->
+    <div class="card" id="ai-progress-card" style="display:none">
+      <h3 style="font-weight:800;margin-bottom:12px;">🔍 Fetching Transaction History…</h3>
+      <div id="ai-progress-log" style="font-size:13px;color:#a78bfa;line-height:2;"></div>
+    </div>
+
+    <!-- AI result -->
+    <div class="card" id="ai-card" style="display:none">
+      <h3 style="font-weight:800;margin-bottom:4px;">🧠 Deep AI Root-Cause Analysis</h3>
+      <p style="color:#6d28d9;font-size:12px;margin-bottom:12px;">Based on your actual Zoho transaction history</p>
+      <div id="ai-result" class="ai-text"></div>
+      <button class="btn-primary" id="fix-btn" style="margin-top:16px;display:none" onclick="applyFixes()">✏️ Apply All Corrections to Zoho Books</button>
+    </div>
+
+    <!-- Fix result -->
+    <div class="card" id="fix-card" style="display:none">
+      <h3 style="font-weight:800;margin-bottom:12px;">✅ Corrections Applied</h3>
+      <div id="fix-result" class="fix-text"></div>
+      <div class="info-box" style="margin-top:16px">🔄 <strong>Next:</strong> Enable low-stock alerts in Zoho Books → Settings → Notifications.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let accessToken = null;
+  let itemsData = [];
+  let orgId = '';
+
+  window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const err = params.get('error');
+
+    if (err) {
+      showBanner('error', '❌ Login failed: ' + err + '. Please try again.');
+      showSection('login');
+    } else if (token) {
+      accessToken = token;
+      window.history.replaceState({}, document.title, '/');
+      showSection('app');
+      showBanner('success', '✅ Connected to Zoho Books!');
+    } else {
+      showSection('login');
+    }
+
+    const clientId = '1000.9SH9M1UXASADRDGDMTYNNW56KNGUPZ';
+    const redirect = encodeURIComponent('https://zoho-inventory-pq5p.vercel.app/api/callback');
+    const scope = encodeURIComponent('ZohoBooks.fullaccess.all');
+    document.getElementById('zoho-login-btn').href =
+      `https://accounts.zoho.eu/oauth/v2/auth?scope=${scope}&client_id=${clientId}&response_type=code&access_type=online&redirect_uri=${redirect}`;
+  });
+
+  function showSection(which) {
+    document.getElementById('login-section').style.display = which === 'login' ? 'block' : 'none';
+    document.getElementById('app-section').style.display = which === 'app' ? 'block' : 'none';
+  }
+
+  function showBanner(type, msg) {
+    const el = document.getElementById('banner');
+    el.innerHTML = `<div class="alert-${type === 'success' ? 'success' : 'error'}">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 6000);
+  }
+
+  function setStep(n) {
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById('s' + i);
+      if (i < n) el.className = 'step done';
+      if (i === n) el.className = 'step active';
+      if (i > n) el.className = 'step';
+    }
+  }
+
+  function logProgress(msg) {
+    const el = document.getElementById('ai-progress-log');
+    el.innerHTML += `<div>→ ${msg}</div>`;
+  }
+
+  // ── FETCH ITEMS ────────────────────────────────────
+  async function fetchItems() {
+    orgId = document.getElementById('org-input').value.trim();
+    if (!orgId) { showBanner('error', '⚠️ Please enter your Organization ID first.'); return; }
+    document.getElementById('items-card').style.display = 'block';
+    document.getElementById('items-loading').style.display = 'block';
+    document.getElementById('items-table-wrap').style.display = 'none';
+    setStep(2);
+    try {
+      const res = await fetch(`/api/items?org_id=${orgId}`, { headers: { 'x-zoho-token': accessToken } });
+      const data = await res.json();
+      if (data.code !== 0) throw new Error(data.message || 'Zoho API error');
+      itemsData = (data.items || []).map(item => ({
+        id: item.item_id, name: item.name,
+        zoho: parseFloat(item.stock_on_hand) || 0,
+        physical: parseFloat(item.stock_on_hand) || 0,
+        unit: item.unit || 'units',
+      }));
+      if (itemsData.length === 0) {
+        showBanner('error', '⚠️ No items found. Enable inventory tracking in Zoho Books.');
+        document.getElementById('items-loading').style.display = 'none';
+        return;
+      }
+      renderTable();
+    } catch (e) {
+      showBanner('error', '❌ Could not fetch items: ' + e.message);
+      document.getElementById('items-loading').style.display = 'none';
+    }
+  }
+
+  function renderTable() {
+    document.getElementById('items-loading').style.display = 'none';
+    document.getElementById('items-table-wrap').style.display = 'block';
+    document.getElementById('items-body').innerHTML = itemsData.map((item, i) => `
+      <tr>
+        <td><div style="font-weight:600;font-size:13px">${item.name}</div><div style="color:#4c1d95;font-size:10px;font-family:monospace">${item.id}</div></td>
+        <td style="color:#a78bfa;font-weight:700">${item.zoho}</td>
+        <td><input type="number" value="${item.physical}" min="0" onchange="updatePhysical(${i}, this.value)" /></td>
+        <td id="gap-${i}" style="font-weight:800;color:#4ade80">0</td>
+      </tr>`).join('');
+  }
+
+  function updatePhysical(i, val) {
+    itemsData[i].physical = parseFloat(val) || 0;
+    const gap = itemsData[i].physical - itemsData[i].zoho;
+    const el = document.getElementById('gap-' + i);
+    el.textContent = (gap > 0 ? '+' : '') + gap;
+    el.style.color = gap === 0 ? '#4ade80' : gap > 0 ? '#60a5fa' : '#f87171';
+  }
+
+  // ── DEEP AI ANALYSIS ────────────────────────────────
+  async function runAI() {
+    const gaps = itemsData.filter(i => i.physical !== i.zoho);
+    if (gaps.length === 0) {
+      document.getElementById('ai-card').style.display = 'block';
+      document.getElementById('ai-result').textContent = '✅ No discrepancies! Stock is perfectly accurate.';
+      setStep(3);
+      return;
+    }
+
+    setStep(3);
+    document.getElementById('ai-progress-card').style.display = 'block';
+    document.getElementById('ai-progress-log').innerHTML = '';
+    document.getElementById('ai-card').style.display = 'none';
+    document.getElementById('fix-btn').style.display = 'none';
+
+    logProgress(`Found ${gaps.length} discrepant item(s). Fetching transaction history from Zoho…`);
+
+    // Fetch transaction history for each discrepant item in parallel
+    const txData = {};
+    await Promise.all(gaps.map(async (item) => {
+      logProgress(`Fetching history for: ${item.name}`);
+      try {
+        const res = await fetch(`/api/transactions?org_id=${orgId}&item_id=${item.id}`, {
+          headers: { 'x-zoho-token': accessToken }
+        });
+        txData[item.id] = await res.json();
+      } catch (e) {
+        txData[item.id] = { error: e.message };
+      }
+    }));
+
+    logProgress('Transaction history loaded. Sending to Claude for deep analysis…');
+
+    // Build rich prompt with real transaction data
+    const itemSections = gaps.map(item => {
+      const tx = txData[item.id] || {};
+      const sales = (tx.sales || []).slice(0, 5).map(s =>
+        `  - Invoice #${s.invoice_number} | Date: ${s.date} | Customer: ${s.customer_name} | Status: ${s.status}`
+      ).join('\n') || '  No recent sales found';
+
+      const purchases = (tx.purchases || []).slice(0, 5).map(p =>
+        `  - PO #${p.purchaseorder_number} | Date: ${p.date} | Vendor: ${p.vendor_name} | Status: ${p.status}`
+      ).join('\n') || '  No recent purchases found';
+
+      const adjustments = (tx.adjustments || []).slice(0, 5).map(a =>
+        `  - Adjustment: ${a.date} | Reason: ${a.reason || 'No reason given'} | Reference: ${a.reference_number || '-'}`
+      ).join('\n') || '  No recent adjustments found';
+
+      return `
+ITEM: ${item.name}
+  Zoho stock: ${item.zoho} ${item.unit}
+  Physical count: ${item.physical} ${item.unit}
+  Variance: ${item.physical - item.zoho > 0 ? '+' : ''}${item.physical - item.zoho} ${item.unit}
+
+  Recent Sales (last 5):
+${sales}
+
+  Recent Purchase Orders (last 5):
+${purchases}
+
+  Recent Inventory Adjustments (last 5):
+${adjustments}`;
+    }).join('\n\n---\n');
+
+    const prompt = `You are an expert inventory manager specializing in agricultural product distribution. 
+Analyze these stock discrepancies from Zoho Books, using the actual transaction history provided to identify SPECIFIC root causes.
+
+${itemSections}
+
+For EACH item, based on the actual transaction data above:
+1. 🔍 SPECIFIC ROOT CAUSE — What exactly caused this gap? Reference specific transactions if visible (e.g. "Invoice #123 was created but stock not deducted", "PO received but not marked as delivered")
+2. ✅ IMMEDIATE ACTION — Exactly what to do right now in Zoho Books
+3. 🔄 PROCESS FIX — Specific workflow change to prevent this exact issue
+
+Then give:
+📋 TOP 3 SYSTEMIC IMPROVEMENTS for this business based on the patterns you see across all items.
+
+Be specific, practical, and reference the actual data. If transaction data is sparse, say so and give pattern-based reasoning.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2000,
+          messages: [{ role: 'user', content: prompt }]
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+
+      document.getElementById('ai-progress-card').style.display = 'none';
+      document.getElementById('ai-card').style.display = 'block';
+      document.getElementById('ai-result').textContent = data.content[0].text;
+      document.getElementById('fix-btn').style.display = 'block';
+    } catch (e) {
+      logProgress('❌ AI analysis failed: ' + e.message);
+    }
+  }
+
+  // ── APPLY FIXES ────────────────────────────────────
+  async function applyFixes() {
+    const gaps = itemsData.filter(i => i.physical !== i.zoho);
+    if (gaps.length === 0) return;
+    document.getElementById('fix-card').style.display = 'block';
+    document.getElementById('fix-result').textContent = '⏳ Posting to Zoho Books…';
+    document.getElementById('fix-btn').disabled = true;
+    setStep(4);
+    const today = new Date().toISOString().split('T')[0];
+    const results = [];
+    for (const item of gaps) {
+      try {
+        const res = await fetch(`/api/adjust?org_id=${orgId}`, {
+          method: 'POST',
+          headers: { 'x-zoho-token': accessToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date: today,
+            reason: 'AI inventory audit correction',
+            line_items: [{ item_id: item.id, quantity_adjusted: item.physical - item.zoho }]
+          }),
+        });
+        const data = await res.json();
+        results.push(data.code === 0
+          ? `✅ ${item.name}: adjusted ${item.physical - item.zoho > 0 ? '+' : ''}${item.physical - item.zoho} ${item.unit}`
+          : `⚠️ ${item.name}: ${data.message}`);
+      } catch (e) {
+        results.push(`❌ ${item.name}: ${e.message}`);
+      }
+    }
+    document.getElementById('fix-result').textContent = results.join('\n');
+    setStep(5);
+    showBanner('success', '✅ All corrections sent to Zoho Books!');
+  }
+</script>
+</body>
+</html>
