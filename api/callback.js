@@ -1,6 +1,3 @@
-// api/callback.js
-// Vercel serverless function — handles Zoho OAuth2 redirect
-
 export default async function handler(req, res) {
   const { code, error } = req.query;
 
@@ -31,11 +28,9 @@ export default async function handler(req, res) {
       return res.redirect(`/?error=${encodeURIComponent(tokenData.error)}`);
     }
 
-    // Pass token to frontend via URL param (session only, never logged)
     return res.redirect(`/?token=${encodeURIComponent(tokenData.access_token)}`);
 
   } catch (err) {
-    console.error('OAuth callback error:', err);
     return res.redirect('/?error=server_error');
   }
 }
