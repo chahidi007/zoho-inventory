@@ -2,8 +2,14 @@
   "version": 2,
   "routes": [
     { "src": "/manifest.json", "dest": "/manifest.json" },
-    { "src": "/icons/(.*)", "dest": "/icons/$1" },
-    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    }
   ]
 }
